@@ -38,12 +38,15 @@ def run():
     print("Dataset initialized")
 
     ## Preprocess train data
+    print("Pre-processing training set ...")
     train_dataloader = preprocess_data(dataset.train_graph, dataset.ent_vocab, dataset.rel_vocab, BATCH_SIZE, rand=True)
 
     ## Preprocess validation data
+    print("Pre-processing validation set ...")
     valid_dataloader = preprocess_data(dataset.valid_graph, dataset.ent_vocab, dataset.rel_vocab, BATCH_SIZE, eval_set=True)
 
     ## Preprocess test data
+    print("Pre-processing test set ...")
     test_dataloader = preprocess_data(dataset.test_graph, dataset.ent_vocab, dataset.rel_vocab, BATCH_SIZE, eval_set=True)
 
     print("Data pre-processed")
@@ -71,7 +74,7 @@ def run():
     train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler, device, dataset, NO_EPOCHS)
     
     preds, true_inputs, true_labels = predict(model, test_dataloader, device)
-    
+    print(len(list))
     print("Evaluate on test set: ")
     hits_1, hits_3, hits_10, total, ratio_h1, ratio_h3, ratio_h10 = hits(preds, true_inputs, true_labels, dataset)
     print("TOTAL: ", total)

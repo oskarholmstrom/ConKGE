@@ -9,14 +9,16 @@ def predict(model, test_dataloader, device):
     preds = []
     true_inputs = []
     true_labels = []
-
+    count = 0
     for batch in test_dataloader:
+        count+=1
         batch = tuple(t.to(device) for t in batch)
         
-        inputs = batch[0]
-        positions = batch[1]
-        masks = batch[2]
-        labels = batch[3]
+        orig_inputs = batch[0]
+        inputs = batch[1]
+        positions = batch[2]
+        masks = batch[3]
+        labels = batch[4]
 
 
         with torch.no_grad():
@@ -28,17 +30,13 @@ def predict(model, test_dataloader, device):
         logits = outputs[0]
         logits = logits.detach().cpu().numpy()
         orig_labels = labels.to('cpu').numpy()
-        orig_inputs = inputs.to('cpu').numpy()
+        orig_inputs = orig_inputs.to('cpu').numpy()
 
-        preds.append(logits)
-        true_inputs.append(orig_inputs)    # Save the inputs in order find which token was masked
-        true_labels.append(orig_labels)    # Save the labels in order find the original triple
+        preds.extend(logits)
+        true_inputs.extend(orig_inputs)    # Save the inputs in order find which token was masked
+        true_labels.extend(orig_labels)    # Save the labels in order find the original triple
 
-    preds_all = np.concatenate(preds, axis=0)
-    inputs_all = np.concatenate(true_inputs, axis=0)
-    labels_all = np.concatenate(true_labels, axis=0)
-
-    return preds_all, inputs_all, labels_all 
+    return preds, true_inputs, true_labels
 
 
 def hits(preds, true_inputs, true_labels, dataset):
@@ -55,13 +53,13 @@ def hits(preds, true_inputs, true_labels, dataset):
     total = 0
     for pred, true_input, true_label in zip(preds, true_inputs, true_labels):
 
-        for i, token in enumerate(true_input):
+        for i, token in enumerate(true_label):
 
-            if token.item() == 2: # Check if a token in the input as masked
+            if token.item() != -100: # Check if a token in the input as masked
                 total += 1
 
                 # Remove all predictions that are correct (part of a triple) but are not the true label
-                filtered_pred = remove_correct_preds(pred[i], true_label, i, dataset)
+                filtered_pred = remove_correct_preds(pred[i], true_input, i, dataset)
 
                 # Sort in ascending order and retrieve the original indices
                 sorted_pred = np.argsort(filtered_pred)

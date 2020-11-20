@@ -26,10 +26,11 @@ def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler,
         for step, batch in enumerate(train_dataloader):
             batch = tuple(t.to(device) for t in batch)
 
-            inputs = batch[0]
-            positions = batch[1]
-            masks = batch[2]
-            labels = batch[3]
+            orig_inputs = batch[0]
+            inputs = batch[1]
+            positions = batch[2]
+            masks = batch[3]
+            labels = batch[4]
 
             model.zero_grad()
 
@@ -66,22 +67,21 @@ def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler,
         print("\nSummary epoch {}/{}:".format(epoch+1, epochs))
         print("Avg. train loss: {:.6f}, \t Time: {:.2f}".format(avg_train_loss, time_elapsed))
 
-        preds, true_inputs, true_labels = predict(model, valid_dataloader, device)
     
         # For every ten epoch, evaluate on the validation set
         if (epoch % 10 == 0 and not epoch == 0):
             print("Evaluate on validation set: ")
-
+            preds, true_inputs, true_labels = predict(model, valid_dataloader, device)
             hits_1, hits_3, hits_10, total, ratio_h1, ratio_h3, ratio_h10 = hits(preds, true_inputs, true_labels, dataset)
             print("TOTAL: ", total)
             print("HITS@1: ", hits_1, ratio_h1)
             print("HITS@3: ", hits_3, ratio_h3)
             print("HITS@10", hits_10, ratio_h10)
 
-        # Delete preds, true_inputs and true_labels to save space
-        del preds
-        del true_inputs
-        del true_labels
+            # Delete preds, true_inputs and true_labels to save space
+            del preds
+            del true_inputs
+            del true_labels
         
 
 

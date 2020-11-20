@@ -22,6 +22,8 @@ class GraphDataset(object):
         self.tail_rel = {} # Keys are "tail, relation", values are a list of all possible heads for a tail-relation pair.
 
         self.train_graph = self.read_data(train_file)
+        print(self.train_graph.num_triples)
+        assert(False)
 
         if test_file != None:
             self.test_graph = self.read_data(test_file)
