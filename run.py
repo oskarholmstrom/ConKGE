@@ -13,7 +13,7 @@ from evaluate import predict, hits
 from timeit import default_timer as timer
 
 
-BATCH_SIZE = 64
+BATCH_SIZE = 2048
 
 def run():
 

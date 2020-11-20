@@ -74,13 +74,13 @@ def all_triples_training(graph, ent_vocab, rel_vocab):
 
         # Create a unique attention mask for each token, where they can only
         # attend to adjacent entity nodes and the relation between them
-        
+
         # NOTE: Hard-coded for triples
         adj_matrix = [
                         [1, 1, 1, 1],
                         [0, 1, 0, 1],
-                        [0, 0, 1, 0],
                         [0, 0, 1, 1],
+                        [0, 1, 1, 1],
                      ]
         attention_masks.append(adj_matrix)
 
