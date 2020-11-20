@@ -74,7 +74,6 @@ def run():
     train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler, device, dataset, NO_EPOCHS)
     
     preds, true_inputs, true_labels = predict(model, test_dataloader, device)
-    print(len(list))
     print("Evaluate on test set: ")
     hits_1, hits_3, hits_10, total, ratio_h1, ratio_h3, ratio_h10 = hits(preds, true_inputs, true_labels, dataset)
     print("TOTAL: ", total)

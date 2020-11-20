@@ -46,7 +46,7 @@ class ConKGE(nn.Module):
                                 position_ids=position_ids,
                                 head_mask=None,
                                 inputs_embeds=inputs_embeds,
-                                labels = labels # lm_labels is deprecated but needed to run on cloud server. For current versions of HugginFace Trnsfm. lm_labels => labels
+                                lm_labels = labels # lm_labels is deprecated but needed to run on cloud server. For current versions of HugginFace Trnsfm. lm_labels => labels
                                 )
 
         return outputs
