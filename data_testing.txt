@@ -1,0 +1,11 @@
+/m/01qscs	/award/award_nominee/award_nominations./award/award_nomination/award	/m/02x8n1n
+/m/040db	/base/activism/activist/area_of_activism	/m/0148d
+/m/08966	/travel/travel_destination/climate./travel/travel_destination_monthly_climate/month	/m/05lf_
+/m/040db	oskar	/m/0148d
+/m/08966	oskar	/m/0148d
+/m/04mrgz	/soccer/football_team/current_roster./soccer/football_roster_position/position	/m/0dgrmp
+/m/060bp	/government/government_office_category/officeholders./government/government_position_held/jurisdiction_of_office	/m/04j53
+/m/060bp	/government/government_office_category/officeholders./government/government_position_held/appointed_by	/m/0cmpn
+/m/07l450	/film/film/genre	/m/082gq
+/m/040db	test	/m/0148d
+/m/040db	crazy	/m/02x8n1n
