@@ -10,7 +10,8 @@ def preprocess_data(graph, ent_vocab, rel_vocab, batch_size, eval_set=False, ran
         # NOTE: The test pre-processing is made for FB15k, where a triple appears twice as ([MASK], r, o) and (s, r, [MASK])
         orig_inputs, inputs, positions, attention_masks, labels = all_triples_test(graph, ent_vocab, rel_vocab)
     else:
-        orig_inputs, inputs, positions, attention_masks, labels = all_triples_training(graph, ent_vocab, rel_vocab)
+        #orig_inputs, inputs, positions, attention_masks, labels = all_triples_training(graph, ent_vocab, rel_vocab)
+        orig_inputs, inputs, positions, attention_masks, labels = all_triples_test(graph, ent_vocab, rel_vocab)
 
     dataloader = create_dataloader(orig_inputs, inputs, positions, attention_masks, labels, batch_size, rand)
 
