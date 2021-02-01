@@ -1,15 +1,18 @@
 
 import torch
+import os
 from model import ConKGE
 import time
 import torch.nn.functional as F
-from evaluate import predict, hits
+from evaluate import evaluate
+from predict import predict
 
 
-def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler, device, dataset, epochs=4):
+def train_model(args, model, train_dataloader, valid_dataloader, optimizer, scheduler, device, dataset, start_epoch, epochs=4):
     no_batches = len(train_dataloader)
     print('Training...')
-    for epoch in range(0, epochs):
+    max_mrr = 0
+    for epoch in range(start_epoch, epochs):
 
         print("")
         print("-"*70)
@@ -35,7 +38,8 @@ def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler,
             model.zero_grad()
 
 
-            outputs = model(input_ids = inputs,
+            outputs = model(args = args,
+                            input_ids = inputs,
                             attention_mask=masks,
                             position_ids = positions,
                             labels = labels
@@ -49,7 +53,7 @@ def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler,
             torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0) # Total norm over all gradients together (viewed as a single vector)
             optimizer.step()
 
-            scheduler.step() # Update the learning rate
+            scheduler.step() # Update learning rate
 
             if (step % 1000 == 0 and not step == 0) or (step == no_batches-1):
                 time_elapsed = time.time() - t0_batch
@@ -68,22 +72,35 @@ def train_model(model, train_dataloader, valid_dataloader, optimizer, scheduler,
         print("Avg. train loss: {:.6f}, \t Time: {:.2f}".format(avg_train_loss, time_elapsed))
 
     
-        # For every ten epoch, evaluate on the validation set
-        if (epoch % 10 == 0 and not epoch == 0):
+        # For every fifty epoch: evaluate on the validation set
+        if ((epoch % 50 == 0 or epoch == epochs-1)):
             print("Evaluate on validation set: ")
-            preds, true_inputs, true_labels = predict(model, valid_dataloader, device)
-            hits_1, hits_3, hits_10, total, ratio_h1, ratio_h3, ratio_h10 = hits(preds, true_inputs, true_labels, dataset)
-            print("TOTAL: ", total)
-            print("HITS@1: ", hits_1, ratio_h1)
-            print("HITS@3: ", hits_3, ratio_h3)
-            print("HITS@10", hits_10, ratio_h10)
-
+            preds, true_inputs, true_labels = predict(args, model, valid_dataloader, device)
+            mrr, hits_1, hits_3, hits_10, ratio_h1, ratio_h3, ratio_h10 = evaluate(preds, true_inputs, true_labels, dataset)
+            
+            print('{{"metric": "MRR", "value": {}}}'.format(mrr))
+            print('{{"metric": "hits_1 (Total)", "value": {}}}'.format(hits_1))
+            print('{{"metric": "hits_1 (Ratio)", "value": {}}}'.format(ratio_h1))
+            print('{{"metric": "hits_3 (Total)", "value": {}}}'.format(hits_3))
+            print('{{"metric": "hits_3 (Ratio)", "value": {}}}'.format(ratio_h3))
+            print('{{"metric": "hits_10 (Total)", "value": {}}}'.format(hits_10))
+            print('{{"metric": "hits_10 (Ratio)", "value": {}}}'.format(ratio_h10))
             # Delete preds, true_inputs and true_labels to save space
             del preds
             del true_inputs
             del true_labels
-        
 
+            # Save checkpoint
+            print("max mrr: ", max_mrr)
+            print("mrr: ", mrr)
+            if mrr > max_mrr:
+                print("Saving checkpoint...", end=" ")
+                state = {'epoch': epoch + 1, 'state_dict': model.state_dict(),
+             'optimizer': optimizer.state_dict()}
+                checkpoint_path = os.path.join(args.experiment_dir, 'checkpoint.pt')
+                torch.save(state, checkpoint_path)
+                max_mrr = mrr
+                print("Done")
 
     print("\nTraining complete!")
 

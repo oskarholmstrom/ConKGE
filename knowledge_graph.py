@@ -18,8 +18,19 @@ class KnowledgeGraph(object):
         # Adds an edge with the end-nodes triple[0] and triple[2], with relation as edge data
         self.graph.add_edge(triple[0], triple[2], relation=[triple[1]])
     
+    def get_nodes(self):
+        return self.graph.nodes()
+
     def get_triples(self):
         return self.graph.edges(data='relation')
+
+    def get_neighbors(self, node):
+        neighbors = self.graph.out_edges(node, data=True)
+        neighbors_list = []
+        for n in neighbors:
+                neighbors_list.append((n[1], n[2]['relation'][0]))
+        return neighbors_list
+
 
     def get_adj_nodes(self, node):
         adj_nodes = {}
